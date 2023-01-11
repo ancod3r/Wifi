@@ -88,42 +88,28 @@ goto menu
 cls
 Set /a num=(%Random% %%9)+1
 color %num%
-::SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
-::netsh wlan show driver | find /i "Hosted" > temp.txt
-::set /p suport=<temp.txt
-::set oky=%suport:~32,3%
-::if /i "!%oky%!" EQU "!Yes!" (
-::netsh wlan show interface | find /I "Hosted" > temp1.txt
-::set /p hostd=<temp.txt
-::set var=%hostd:~29,3%
-::if /i "!%var%!" EQU "!Not!" (
-::netsh wlan set hostednetwork mode=allow ssid=Hello key=087654321>NUL
-::netsh wlan start hostednetwork>NUL
-::echo Wifi Name: Hello , Password: 087654321
-::pause
-::) else (
-::  echo "Hotspot Alrady Running. . .!"
-::pause
-::)
-::) else (
-::  echo "Hotspot cannot be established Driver Not Supportd!"
-::pause
-::)
-::del temp1.txt
-::del temp.txt
-SETLOCAL ENABLEDELAYEDEXPANSION
-netsh wlan show driver | find /i "network" > temp.txt
+SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+netsh wlan show driver | find /i "Hosted" > temp.txt
 set /p suport=<temp.txt
-set okye=%suport:~32,3%
-if /i not"!%okye%!"EQU"!Yes!" (
+set oky=%suport:~32,3%
+if /i "!%oky%!" EQU "!Yes!" (
+netsh wlan show interface | find /I "Hosted" > temp1.txt
+set /p hostd=<temp.txt
+set var=%hostd:~29,3%
+if /i "!%var%!" EQU "!Not!" (
 netsh wlan set hostednetwork mode=allow ssid=Hello key=087654321>NUL
 netsh wlan start hostednetwork>NUL
 echo Wifi Name: Hello , Password: 087654321
 pause
 ) else (
+  echo "Hotspot Alrady Running. . .!"
+pause
+)
+) else (
   echo "Hotspot cannot be established Driver Not Supportd!"
 pause
 )
+del temp1.txt
 del temp.txt
 goto menu
 
