@@ -6,7 +6,7 @@ title Networking. . .
  ECHO =============================
  ECHO Running Admin shell
  ECHO =============================
-
+:: It is Treated as Virus in OS Because of Admin Privillages
 :init
  setlocal DisableDelayedExpansion
  set cmdInvoke=1
@@ -57,7 +57,7 @@ Set /a num=(%Random% %%9)+1
 color %num%
 echo.
 echo.
-echo 			Hello, %username% Choose Your Option.I'll Do Rest Of The Things :)
+echo 			Hello, %username% Choose Your Option :)
 echo.
 echo.
 echo  1. Create Hotspot Name Hello , Password Is 087654321
@@ -70,7 +70,7 @@ echo  4. Set Wifi Speed To Defalt Settings (May Decrease WiFi Speed)
 echo.
 echo  5. View Parameters
 echo.
-echo  6. Find Your Saved WiFi Password
+echo  6. Get Your Saved WiFi Password
 echo.
 echo  7. Exit
 echo.
@@ -88,9 +88,43 @@ goto menu
 cls
 Set /a num=(%Random% %%9)+1
 color %num%
-netsh wlan set hostednetwork mode=allow ssid=Hello key=087654321
-netsh wlan start hostednetwork
+::SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+::netsh wlan show driver | find /i "Hosted" > temp.txt
+::set /p suport=<temp.txt
+::set oky=%suport:~32,3%
+::if /i "!%oky%!" EQU "!Yes!" (
+::netsh wlan show interface | find /I "Hosted" > temp1.txt
+::set /p hostd=<temp.txt
+::set var=%hostd:~29,3%
+::if /i "!%var%!" EQU "!Not!" (
+::netsh wlan set hostednetwork mode=allow ssid=Hello key=087654321>NUL
+::netsh wlan start hostednetwork>NUL
+::echo Wifi Name: Hello , Password: 087654321
+::pause
+::) else (
+::  echo "Hotspot Alrady Running. . .!"
+::pause
+::)
+::) else (
+::  echo "Hotspot cannot be established Driver Not Supportd!"
+::pause
+::)
+::del temp1.txt
+::del temp.txt
+SETLOCAL ENABLEDELAYEDEXPANSION
+netsh wlan show driver | find /i "network" > temp.txt
+set /p suport=<temp.txt
+set okye=%suport:~32,3%
+if /i not"!%okye%!"EQU"!Yes!" (
+netsh wlan set hostednetwork mode=allow ssid=Hello key=087654321>NUL
+netsh wlan start hostednetwork>NUL
+echo Wifi Name: Hello , Password: 087654321
 pause
+) else (
+  echo "Hotspot cannot be established Driver Not Supportd!"
+pause
+)
+del temp.txt
 goto menu
 
 :stop Hotspot
@@ -122,7 +156,7 @@ echo.
 netsh int tcp show global
 pause
 cls
-netsh int tcp set global chimney=enabled
+::netsh int tcp set global chimney=enabled
 netsh int tcp set global autotuninglevel=normal
 netsh int tcp set global congestionprovider=ctcp
 netsh int tcp show global
@@ -146,17 +180,92 @@ netsh int tcp show global
 pause
 goto menu
 :password
-cls
 color A
-netsh wlan show profile
-msg * "write (netsh wlan show profile name=HereYourWiFiName key=clear) Hit Enter under Security settings you will find Key Content There is your password"
-echo.
-echo.
-echo "Copy This Line From netsh To clear And Paste (netsh wlan show profile name=HereYourWiFiName key=clear) Hit Enter under Security settings you will find Key Content There is your password"
-echo.
-echo.
-cmd \k
+@echo off & setlocal enabledelayedexpansion
+Set "Copyname=Wifi Passwords"
+Mode con cols=75 lines=8
+cls & color 0A & echo.
+  echo             ***********************************************
+  echo                      %Copyname%
+  echo             ***********************************************
+  echo(
+if _%1_==_Main_  goto :Main
+Set Count=0
+Set L=0
+:Main
+Call :init
+Call :CountLines
+Set "PasswordLog=%~dp0Wifi_Passwords_on_%ComputerName%.txt"
+%Mod%
+  echo(
+  echo             ***********************************************
+  echo                      %Copyname%
+  echo             ***********************************************
+  echo(
+Call :Color 0E "                 [N][SSID] ================ Password" 1
+echo(
+(
+  echo             ***********************************************
+  echo                      %Copyname%
+  echo             ***********************************************
+  echo(
+  echo                  [N][SSID] ==============^> "Password"
+  echo(
+  
+)>"%PasswordLog%"
+for /f "skip=2 delims=: tokens=2" %%a in ('netsh wlan show profiles') do (
+    if not "%%a"=="" (
+        set "ssid=%%a"
+        set "ssid=!ssid:~1!"
+    call :Getpassword "!ssid!"
+    )
+)
+echo(
+echo Done
+If exist "%PasswordLog%" start "" "%PasswordLog%"
 pause>nul
+exit
+:Getpassword
+set "name=%1"
+set "name=!name:"=!"
+Set "passwd="
+for /f "delims=: tokens=2" %%a in ('netsh wlan show profiles %1 key^=clear ^|find /I "Cont"') do (
+  set "passwd=%%a"
+  Set /a Count+=1
+)
 
+If defined passwd (
+  set passwd=!passwd:~1!
+  echo                  [!Count!][!name!] ====^> "!passwd!"
+  echo                  [!Count!][!name!] ====^> "!passwd!" >> "%PasswordLog%"
+) else (
+  Set /a Count+=1
+call :color 0C "                 [!Count!][!name!] The Password is empty" 1
+  echo                  [!Count!][!name!] The Password is empty >> "%PasswordLog%"
+)
+exit /b
+:init
+prompt $g
+for /F "delims=." %%a in ('"prompt $H. & for %%b in (1) do rem"') do set "BS=%%a"
+exit /b
+:color
+set nL=%3
+if not defined nL echo requires third argument & pause > nul & goto :eof
+if %3 == 0 (
+    <nul set /p ".=%bs%">%2 & findstr /v /a:%1 /r "^$" %2 nul & del %2 2>&1 & goto :eof
+) else if %3 == 1 (
+    echo %bs%>%2 & findstr /v /a:%1 /r "^$" %2 nul & del %2 2>&1 & goto :eof
+)
+exit /b
+:CountLines
+for /f "skip=2 delims=: tokens=2" %%a in ('netsh wlan show profiles') do (
+    if not "%%a"=="" (
+    set /a L+=1
+  )
+)
+set /a L=!L! + 10
+Set Mod=Mode con cols=75 Lines=!L!
+exit /b
+pause>nul
 :end
 exit
