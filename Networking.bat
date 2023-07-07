@@ -1,12 +1,12 @@
 @echo off
 CLS
 color A
-title Networking. . .
+title %~n0
  ECHO.
  ECHO =============================
  ECHO Running Admin shell
  ECHO =============================
-:: It is Treated as Virus in OS Because of Admin Privillages
+
 :init
  setlocal DisableDelayedExpansion
  set cmdInvoke=1
@@ -60,7 +60,7 @@ echo.
 echo 			Hello, %username% Choose Your Option :)
 echo.
 echo.
-echo  1. Create Hotspot Name Hello , Password Is 087654321
+echo  1. Create Hotspot Name Hello , Password is 087654321
 echo.
 echo  2. Stop Hotspot
 echo.
@@ -88,7 +88,7 @@ goto menu
 cls
 Set /a num=(%Random% %%9)+1
 color %num%
-SETLOCAL ENABLEEXTENSIONS ENABLEDELAYEDEXPANSION
+setlocal enableextensions enabledelayedexpansion
 netsh wlan show driver | find /i "Hosted" > temp.txt
 set /p suport=<temp.txt
 set oky=%suport:~32,3%
