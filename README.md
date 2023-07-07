@@ -1,7 +1,10 @@
 # Networking Menu
 Simple batch script to,
+<br>
 `Create wifi hotspot`
+<br>
 `Boost wifi speed`
-`get saved wifi passwords`
+<br>
+`Get saved wifi passwords.`
 
 Run and set you options.
